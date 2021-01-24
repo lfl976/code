@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      ::-webkit-scrollbar {
+        height: 4px;
+        width: 0;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: skyblue;
+      }
+      .tab-container {
+        position: relative;
+        overflow-x: scroll;
+        display: flex;
+        list-style: none;
+        outline: 1px solid gray;
+        width: 375px;
+        white-space: pre;
+        line-height: 1.4;
+        cursor: pointer;
+        padding-bottom: 10px;
+      }
+      .wrap {
+        position: relative;
+        width: 375px;
+        margin: 20px;
+      }
+      .wrap::after {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        display: block;
+        content: "";
+        width: 1px;
+        height: 100%;
+        background-color: black;
+      }
+      .tab-container > li {
+        padding: 5px 8px;
+        border: 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- wrap是辅助线 -->
+    <!-- <div class="wrap"> -->
+    <ul class="tab-container" id="tab-container">
+      <li>Movie</li>
+      <li>TV play</li>
+      <li>Anime</li>
+      <li>Qiyi</li>
+      <li>YouTube</li>
+      <li>Youku</li>
+      <li>Netflix</li>
+      <li>Video</li>
+      <li>Cartoon</li>
+    </ul>
+    <!-- </div> -->
+    <script>
+      const tabContainer = document.getElementById("tab-container");
+      const tabWidth = tabContainer.offsetWidth;
+      // 速度
+      const vx = 6;
+
+      tabContainer.addEventListener("click", function (e) {
+        let tabItem = e.target;
+        // 计算当前点中的tabItem的中心到tab左顶点的长度（自己长度的一半加上它前面所有tabItem的长度）
+        let leftWidth = tabItem.offsetWidth / 2;
+        while (tabItem.previousElementSibling) {
+          tabItem = tabItem.previousElementSibling;
+          leftWidth += tabItem.offsetWidth;
+        }
+
+        if (leftWidth <= tabWidth / 2) {
+          const oldScrollLeft = tabContainer.scrollLeft;
+          let v = 0;
+          // 这时需要移动tab与box左对齐
+          if (oldScrollLeft > 0) {
+            const slide = function () {
+              v += vx;
+              let d = oldScrollLeft - v;
+              // 小于0时取0
+              tabContainer.scrollLeft = Math.max(d, 0);
+              if (tabContainer.scrollLeft > 0) {
+                requestAnimationFrame(slide);
+              }
+            };
+            requestAnimationFrame(slide);
+          }
+        } else {
+          const maxDistance =
+            tabContainer.scrollWidth - tabContainer.clientWidth;
+          const distance = leftWidth - tabWidth / 2;
+          let v = 0;
+          const oldScrollLeft = tabContainer.scrollLeft;
+          const newScrollLeft = Math.min(maxDistance, distance);
+          // 需要移动的距离
+          const width = newScrollLeft - oldScrollLeft;
+          if (width === 0) return;
+          const slide = function () {
+            v += vx;
+            let d = 0;
+            if (width > 0) {
+              d = oldScrollLeft + v;
+            } else {
+              d = oldScrollLeft - v;
+            }
+            tabContainer.scrollLeft = Math.max(0, d);
+            // tabContainer.scrollLeft = Math.min(maxDistance, d);
+            if (v < Math.abs(width)) {
+              requestAnimationFrame(slide);
+            }
+          };
+          requestAnimationFrame(slide);
+        }
+      });
+    </script>
+  </body>
+</html>
